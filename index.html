@@ -171,14 +171,31 @@ function styleFromStops(config) {
   return {
     color: [
       'case',
-
-      // Make explicit nodata transparent.
-      ['==', ['band', 1], config.nodata],
-      [0, 0, 0, 0],
-
-      // Also hide non-finite or obviously extreme values if they occur.
-      ['>=', ['band', 1], 32767],
-      [0, 0, 0, 0],
+ 
+      // Nodata is arriving as zero
+      ['==', ['band',1], 0],
+      [0,0,0,0],
+ 
+      // Normal colour ramp
+      ['interpolate',
+        ['linear'],
+        ['band',1],
+ 
+        -3000, [8,48,107,1],
+        -2000, [33,102,172,1],
+        -1000, [103,169,207,1],
+        -500, [170,220,240,1],
+        -1, [220,245,255,1],
+ 
+        0.0001, [60,170,60,1],
+ 
+        500, [150,200,90,1],
+        1000, [200,185,120,1],
+        2000, [170,130,80,1],
+        3000, [130,90,50,1],
+        4000, [90,60,35,1]
+      ]
+    ]
 
       interpolate
     ]
