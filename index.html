@@ -26,25 +26,31 @@
       font-family: Arial, sans-serif;
       font-size: 13px;
       border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
     }
   </style>
 </head>
 
 <body>
 <div id="map"></div>
-<div class="info">BEDMAP COG test (EPSG:3031)</div>
+<div class="info">BEDMAP COG over ArcGIS Antarctic WMTS basemap (EPSG:3031)</div>
 
 <script type="module">
 import Map from 'https://esm.sh/ol@10.6.1/Map';
 import View from 'https://esm.sh/ol@10.6.1/View';
+import TileLayer from 'https://esm.sh/ol@10.6.1/layer/Tile';
 import WebGLTileLayer from 'https://esm.sh/ol@10.6.1/layer/WebGLTile';
+import WMTS from 'https://esm.sh/ol@10.6.1/source/WMTS';
 import GeoTIFF from 'https://esm.sh/ol@10.6.1/source/GeoTIFF';
+import WMTSTileGrid from 'https://esm.sh/ol@10.6.1/tilegrid/WMTS';
 import {register} from 'https://esm.sh/ol@10.6.1/proj/proj4';
 import {get as getProjection} from 'https://esm.sh/ol@10.6.1/proj';
 import proj4 from 'https://esm.sh/proj4';
 
+// Local COG served by GitHub Pages. Keep this file in your repo under /data/.
 const cogUrl = './data/bed-elevation-cog.tif';
 
+// EPSG:3031 Antarctic Polar Stereographic.
 proj4.defs(
   'EPSG:3031',
   '+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +datum=WGS84 +units=m +no_defs'
@@ -53,11 +59,60 @@ register(proj4);
 
 const projection = getProjection('EPSG:3031');
 projection.setExtent([
-  -3333134,-3333134,
-   3333134, 3333134
+  -3333134, -3333134,
+   3333134,  3333134
 ]);
 
+// ---------------------------------------------------------------------
+// ArcGIS Antarctica and Southern Ocean WMTS basemap
+// Native WMTS CRS: EPSG:3031
+// Matrix set: default028mm
+// Matrix IDs available in the capabilities snippet: 3 to 13
+// ---------------------------------------------------------------------
+const wmtsOrigin = [-30635955.4472718, 30635955.4472718];
+
+const wmtsResolutions = [
+  29917.9252367671,  // matrix 3
+  14958.9626183836,  // matrix 4
+   7479.4813091918,  // matrix 5
+   3739.7406545959,  // matrix 6
+   1869.8703272978,  // matrix 7
+    934.9351636489,  // matrix 8
+    467.4675818245,  // matrix 9
+    233.7337909122,  // matrix 10
+    116.8668954561,  // matrix 11
+     58.4334477281,  // matrix 12
+     29.2167238640   // matrix 13
+];
+
+const wmtsMatrixIds = [
+  '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'
+];
+
+const antarcticBasemap = new TileLayer({
+  opacity: 1.0,
+  source: new WMTS({
+    url: 'https://tiles.arcgis.com/tiles/tPxy1hrFDhJfZ0Mf/arcgis/rest/services/Antarctica_and_the_Southern_Ocean/MapServer/WMTS',
+    layer: 'Antarctica_and_the_Southern_Ocean',
+    matrixSet: 'default028mm',
+    format: 'image/jpgpng',
+    style: 'default',
+    projection: projection,
+    requestEncoding: 'KVP',
+    tileGrid: new WMTSTileGrid({
+      origin: wmtsOrigin,
+      resolutions: wmtsResolutions,
+      matrixIds: wmtsMatrixIds
+    })
+  })
+});
+
+// ---------------------------------------------------------------------
+// BEDMAP COG overlay
+// Blue for below sea level, hard green boundary at 0 m, browns above.
+// ---------------------------------------------------------------------
 const raster = new WebGLTileLayer({
+  opacity: 0.72,
   source: new GeoTIFF({
     sources: [{ url: cogUrl }],
     normalize: false
@@ -67,37 +122,45 @@ const raster = new WebGLTileLayer({
     color: [
       'interpolate',
       ['linear'],
-      ['band',1],
+      ['band', 1],
 
-      -3000, [8,48,107],
-      -2000, [33,102,172],
-      -1000, [103,169,207],
-       -500, [170,220,240],
-         -1, [220,245,255],
+      -3000, [8, 48, 107, 1],
+      -2000, [33, 102, 172, 1],
+      -1000, [103, 169, 207, 1],
+       -500, [170, 220, 240, 1],
+         -1, [220, 245, 255, 1],
 
-          0, [60,170,60],
+          0, [60, 170, 60, 1],
 
-        500, [150,200,90],
-       1000, [200,185,120],
-       2000, [170,130,80],
-       3000, [130,90,50],
-       4000, [90,60,35]
+        500, [150, 200, 90, 1],
+       1000, [200, 185, 120, 1],
+       2000, [170, 130, 80, 1],
+       3000, [130, 90, 50, 1],
+       4000, [90, 60, 35, 1]
     ]
   }
 });
 
 const map = new Map({
   target: 'map',
-  layers: [raster],
+  layers: [
+    antarcticBasemap,
+    raster
+  ],
   view: new View({
     projection: projection,
-    center: [0,0],
-    zoom: 2
+    center: [0, 0],
+    resolutions: wmtsResolutions,
+    zoom: 3,
+    minZoom: 0,
+    maxZoom: wmtsResolutions.length - 1
   })
 });
 
 console.log('Map initialised');
+console.log('Basemap: ArcGIS Antarctica and Southern Ocean WMTS');
 console.log('COG:', cogUrl);
+console.log('Projection:', projection.getCode());
 </script>
 
 </body>
