@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Antarctic EPSG:3031 BEDMAP Test</title>
+  <title>Antarctic EPSG:3031 Multi-layer Webmap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="icon" href="data:,">
@@ -21,7 +21,7 @@
       top: 10px;
       left: 10px;
       z-index: 1000;
-      width: 280px;
+      width: 300px;
       background: rgba(255,255,255,0.94);
       padding: 10px;
       font-family: Arial, sans-serif;
@@ -93,6 +93,12 @@
       font-size: 12px;
     }
 
+    .legend-note {
+      margin-top: 3px;
+      color: #444;
+      font-size: 12px;
+    }
+
     .note {
       margin-top: 8px;
       color: #444;
@@ -125,7 +131,7 @@
   <div id="legend"></div>
 
   <div class="note">
-    Nodata arriving as 0 is rendered transparent.
+    Nodata value 32767, and masked cells arriving as 0, are rendered transparent.
   </div>
 </div>
 
@@ -165,75 +171,147 @@ projection.setExtent([
 
 // ---------------------------------------------------------------------
 // Raster layer catalogue
-// Add future COGs here. The selector, legend, colour ramp and opacity
-// control will update automatically when a different layer is selected.
+// mode: 'interpolate' gives a continuous ramp.
+// mode: 'step' gives discrete colour bins.
+// zeroTransparent hides masked/nodata cells that arrive in OpenLayers as 0.
+// If you later need true zero values to display, set zeroTransparent:false
+// and make sure the COG has a usable mask or nodata value.
 // ---------------------------------------------------------------------
 const rasterConfigs = {
   bed: {
     label: 'BEDMAP bed elevation',
     url: './data/bed-elevation-cog.tif',
     units: 'm',
+    mode: 'interpolate',
     nodata: 32767,
+    zeroTransparent: true,
+    legendNote: 'Continuous blue below sea level, green at 0 m, brown above.',
     stops: [
       {value: -3000, color: [8, 48, 107, 1], hex: '#08306b'},
       {value: -2000, color: [33, 102, 172, 1], hex: '#2166ac'},
       {value: -1000, color: [103, 169, 207, 1], hex: '#67a9cf'},
       {value:  -500, color: [170, 220, 240, 1], hex: '#aadcf0'},
       {value:    -1, color: [220, 245, 255, 1], hex: '#dcf5ff'},
-      {value:     0, color: [60, 170, 60, 1], hex: '#3caa3c'},
+      {value: 0.0001, color: [60, 170, 60, 1], hex: '#3caa3c'},
       {value:   500, color: [150, 200, 90, 1], hex: '#96c85a'},
       {value:  1000, color: [200, 185, 120, 1], hex: '#c8b978'},
       {value:  2000, color: [170, 130, 80, 1], hex: '#aa8250'},
       {value:  3000, color: [130, 90, 50, 1], hex: '#825a32'},
       {value:  4000, color: [90, 60, 35, 1], hex: '#5a3c23'}
     ]
-  }
+  },
 
-  // Example template for adding another COG later:
-  // temp: {
-  //   label: 'Near-surface air temperature',
-  //   url: './data/temperature-cog.tif',
-  //   units: 'deg C',
-  //   nodata: 32767,
-  //   stops: [
-  //     {value: -40, color: [49, 54, 149, 1], hex: '#313695'},
-  //     {value: -20, color: [116, 173, 209, 1], hex: '#74add1'},
-  //     {value:   0, color: [255, 255, 191, 1], hex: '#ffffbf'},
-  //     {value:  10, color: [244, 109, 67, 1], hex: '#f46d43'}
-  //   ]
-  // }
+  surface: {
+    label: 'Surface elevation',
+    url: './data/surface-elevation.tif',
+    units: 'm',
+    mode: 'step',
+    nodata: 32767,
+    zeroTransparent: true,
+    legendNote: 'Discrete Viridis classes: <500 to >3500 m.',
+    stops: [
+      {value:    0, color: [68, 1, 84, 1], hex: '#440154', label: '<500'},
+      {value:  500, color: [72, 35, 116, 1], hex: '#482374', label: '500'},
+      {value: 1000, color: [64, 67, 135, 1], hex: '#404387', label: '1000'},
+      {value: 1500, color: [52, 94, 141, 1], hex: '#345e8d', label: '1500'},
+      {value: 2000, color: [41, 120, 142, 1], hex: '#29788e', label: '2000'},
+      {value: 2500, color: [32, 144, 140, 1], hex: '#20908c', label: '2500'},
+      {value: 3000, color: [94, 201, 98, 1], hex: '#5ec962', label: '3000'},
+      {value: 3500, color: [253, 231, 37, 1], hex: '#fde725', label: '>3500'}
+    ]
+  },
+
+  velocity: {
+    label: 'Ice velocity',
+    url: './data/velocity.tif',
+    units: 'm/yr',
+    mode: 'interpolate',
+    nodata: 32767,
+    zeroTransparent: true,
+    legendNote: 'Continuous jet ramp using logarithmically spaced velocity stops.',
+    stops: [
+      {value: 0.1, color: [0, 0, 128, 1], hex: '#000080'},
+      {value:   1, color: [0, 0, 255, 1], hex: '#0000ff'},
+      {value:   3, color: [0, 128, 255, 1], hex: '#0080ff'},
+      {value:  10, color: [0, 255, 255, 1], hex: '#00ffff'},
+      {value:  30, color: [255, 255, 0, 1], hex: '#ffff00'},
+      {value: 100, color: [255, 0, 0, 1], hex: '#ff0000'},
+      {value: 300, color: [128, 0, 0, 1], hex: '#800000'}
+    ]
+  },
+
+  smb: {
+    label: 'Surface mass balance',
+    url: './data/surface-mass-balance.tif',
+    units: 'mm/yr',
+    mode: 'step',
+    nodata: 32767,
+    zeroTransparent: true,
+    legendNote: 'Discrete GnBu classes: <100 to >900 mm/yr.',
+    stops: [
+      {value:   0, color: [247, 252, 240, 1], hex: '#f7fcf0', label: '<100'},
+      {value: 100, color: [224, 243, 219, 1], hex: '#e0f3db', label: '100'},
+      {value: 200, color: [204, 235, 197, 1], hex: '#ccebc5', label: '200'},
+      {value: 300, color: [168, 221, 181, 1], hex: '#a8ddb5', label: '300'},
+      {value: 400, color: [123, 204, 196, 1], hex: '#7bccc4', label: '400'},
+      {value: 500, color: [78, 179, 211, 1], hex: '#4eb3d3', label: '500'},
+      {value: 600, color: [43, 140, 190, 1], hex: '#2b8cbe', label: '600'},
+      {value: 700, color: [8, 104, 172, 1], hex: '#0868ac', label: '700'},
+      {value: 800, color: [8, 64, 129, 1], hex: '#084081', label: '800'},
+      {value: 900, color: [4, 41, 89, 1], hex: '#042959', label: '>900'}
+    ]
+  }
 };
 
-function styleFromStops(config) {
-  return {
-    color: [
-      'case',
+function colourExpressionFromConfig(config) {
+  if (config.mode === 'step') {
+    const expression = [
+      'step',
+      ['band', 1],
+      config.stops[0].color
+    ];
 
-      // Nodata is arriving as zero.
+    for (let i = 1; i < config.stops.length; i++) {
+      expression.push(config.stops[i].value, config.stops[i].color);
+    }
+
+    return expression;
+  }
+
+  const expression = [
+    'interpolate',
+    ['linear'],
+    ['band', 1]
+  ];
+
+  config.stops.forEach(stop => {
+    expression.push(stop.value, stop.color);
+  });
+
+  return expression;
+}
+
+function styleFromConfig(config) {
+  const conditions = [
+    'case',
+
+    ['==', ['band', 1], config.nodata],
+    [0, 0, 0, 0],
+
+    ['>=', ['band', 1], config.nodata],
+    [0, 0, 0, 0]
+  ];
+
+  if (config.zeroTransparent) {
+    conditions.push(
       ['==', ['band', 1], 0],
-      [0, 0, 0, 0],
+      [0, 0, 0, 0]
+    );
+  }
 
-      // Normal colour ramp.
-      ['interpolate',
-        ['linear'],
-        ['band', 1],
+  conditions.push(colourExpressionFromConfig(config));
 
-        -3000, [8, 48, 107, 1],
-        -2000, [33, 102, 172, 1],
-        -1000, [103, 169, 207, 1],
-         -500, [170, 220, 240, 1],
-           -1, [220, 245, 255, 1],
-
-        0.0001, [60, 170, 60, 1],
-
-          500, [150, 200, 90, 1],
-         1000, [200, 185, 120, 1],
-         2000, [170, 130, 80, 1],
-         3000, [130, 90, 50, 1],
-         4000, [90, 60, 35, 1]
-      ]
-    ]
-  };
+  return {color: conditions};
 }
 
 function createRasterLayer(config, opacity) {
@@ -246,7 +324,7 @@ function createRasterLayer(config, opacity) {
       }],
       normalize: false
     }),
-    style: styleFromStops(config)
+    style: styleFromConfig(config)
   });
 }
 
@@ -254,23 +332,36 @@ function updateLegend(config) {
   const minStop = config.stops[0];
   const maxStop = config.stops[config.stops.length - 1];
 
-  const minValue = minStop.value;
-  const maxValue = maxStop.value;
-  const range = maxValue - minValue;
+  const minValue = minStop.label || minStop.value;
+  const maxValue = maxStop.label || maxStop.value;
 
-  const gradientStops = config.stops.map(stop => {
-    const pct = ((stop.value - minValue) / range) * 100;
-    return `${stop.hex} ${pct.toFixed(2)}%`;
-  }).join(', ');
+  let gradientStops;
+
+  if (config.mode === 'step') {
+    const n = config.stops.length;
+    gradientStops = config.stops.map((stop, i) => {
+      const start = (i / n) * 100;
+      const end = ((i + 1) / n) * 100;
+      return `${stop.hex} ${start.toFixed(2)}%, ${stop.hex} ${end.toFixed(2)}%`;
+    }).join(', ');
+  } else {
+    const first = config.stops[0].value;
+    const last = config.stops[config.stops.length - 1].value;
+    const range = last - first;
+    gradientStops = config.stops.map(stop => {
+      const pct = ((stop.value - first) / range) * 100;
+      return `${stop.hex} ${pct.toFixed(2)}%`;
+    }).join(', ');
+  }
 
   document.getElementById('legend').innerHTML = `
     <div class="legend-title">${config.label}</div>
     <div class="legend-gradient" style="background: linear-gradient(to right, ${gradientStops});"></div>
     <div class="legend-labels">
       <span>${minValue} ${config.units}</span>
-      <span>0 ${config.units}</span>
       <span>${maxValue} ${config.units}</span>
     </div>
+    <div class="legend-note">${config.legendNote}</div>
   `;
 }
 
@@ -338,7 +429,6 @@ const measureLayer = new VectorLayer({
 });
 
 let measureDraw = null;
-let measureListener = null;
 
 function formatLength(line) {
   const lengthM = line.getLength();
@@ -374,10 +464,8 @@ function enableMeasure(map) {
   document.getElementById('measureOutput').textContent = 'Click to start measuring. Double-click to finish.';
 
   measureDraw.on('drawstart', event => {
-    const feature = event.feature;
-    const geometry = feature.getGeometry();
-
-    measureListener = geometry.on('change', geomEvent => {
+    const geometry = event.feature.getGeometry();
+    geometry.on('change', geomEvent => {
       const line = geomEvent.target;
       document.getElementById('measureOutput').textContent = `Distance: ${formatLength(line)}`;
     });
@@ -386,7 +474,6 @@ function enableMeasure(map) {
   measureDraw.on('drawend', event => {
     const line = event.feature.getGeometry();
     document.getElementById('measureOutput').textContent = `Distance: ${formatLength(line)}`;
-    measureListener = null;
   });
 }
 
