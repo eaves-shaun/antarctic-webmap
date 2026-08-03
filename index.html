@@ -302,16 +302,17 @@ const rasterConfigs = {
     zeroTransparent: true,
     legendNote: 'Discrete GnBu classes: <100 to >900 mm/yr.',
     stops: [
-      {value:   0, color: [247, 252, 240, 1], hex: '#f7fcf0', label: '<100'},
-      {value: 100, color: [224, 243, 219, 1], hex: '#e0f3db', label: '100'},
-      {value: 200, color: [204, 235, 197, 1], hex: '#ccebc5', label: '200'},
-      {value: 300, color: [168, 221, 181, 1], hex: '#a8ddb5', label: '300'},
-      {value: 400, color: [123, 204, 196, 1], hex: '#7bccc4', label: '400'},
-      {value: 500, color: [78, 179, 211, 1], hex: '#4eb3d3', label: '500'},
-      {value: 600, color: [43, 140, 190, 1], hex: '#2b8cbe', label: '600'},
-      {value: 700, color: [8, 104, 172, 1], hex: '#0868ac', label: '700'},
-      {value: 800, color: [8, 64, 129, 1], hex: '#084081', label: '800'},
-      {value: 900, color: [4, 41, 89, 1], hex: '#042959', label: '>900'}
+      {value:-2000, color:[103,0,31,1],    hex:'#67001f', label:'<-2000'},
+      {value:-1500, color:[178,24,43,1],   hex:'#b2182b', label:'-1500'},
+      {value:-1000, color:[214,96,77,1],   hex:'#d6604d', label:'-1000'},
+      {value:-500,  color:[244,165,130,1], hex:'#f4a582', label:'-500'},
+      {value:-100,  color:[253,219,199,1], hex:'#fddbc7', label:'-100'},
+      {value:0,     color:[255,255,255,1], hex:'#ffffff', label:'0'},
+      {value:100,   color:[209,229,240,1], hex:'#d1e5f0', label:'100'},
+      {value:500,   color:[146,197,222,1], hex:'#92c5de', label:'500'},
+      {value:1000,  color:[67,147,195,1],  hex:'#4393c3', label:'1000'},
+      {value:2000,  color:[33,102,172,1],  hex:'#2166ac', label:'2000'},
+      {value:3000,  color:[5,48,97,1],     hex:'#053061', label:'>3000'}
     ]
   }
 };
