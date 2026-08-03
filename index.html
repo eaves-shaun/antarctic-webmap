@@ -311,11 +311,6 @@ function styleFromConfig(config) {
   return {color: conditions};
 }
 
-  conditions.push(colourExpressionFromConfig(config));
-
-  return {color: conditions};
-}
-
 function createRasterLayer(config, opacity) {
   return new WebGLTileLayer({
     opacity: opacity,
