@@ -232,7 +232,7 @@ const rasterConfigs = {
     stops: [
       {value: 0.000001, color:[255,255,255,1]},
       {value: 4000,     color:[255,0,0,1]}
-]
+    ]
   },
 
   smb: {
@@ -313,10 +313,9 @@ function createRasterLayer(config, opacity) {
       sources: [{
         url: config.url,
         nodata: config.nodata
-      }]
-    }),
-    style: styleFromConfig(config)
-  });
+      }],
+      normalize: false
+    })
 }
 
 function updateLegend(config) {
