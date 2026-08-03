@@ -309,14 +309,20 @@ function styleFromConfig(config) {
 function createRasterLayer(config, opacity) {
   return new WebGLTileLayer({
     opacity: opacity,
+
     source: new GeoTIFF({
       sources: [{
         url: config.url,
         nodata: config.nodata
       }],
       normalize: false
-    })
-})
+    }),
+
+    style: styleFromConfig(config)
+
+  });
+}
+
 
 function updateLegend(config) {
   const minStop = config.stops[0];
