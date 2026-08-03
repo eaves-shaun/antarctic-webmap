@@ -222,19 +222,20 @@ const rasterConfigs = {
   },
 
   velocity: {
-      label: 'Ice velocity',
-      url: './data/velocity-cog-epsg3031.tif',
-      units: 'm/yr',
-      mode: 'interpolate',
-      nodata: -9999,
-      zeroTransparent: true,
-      stops: [
-        {value: 0, color:[0,0,255,1]},
-        {value: 50, color:[0,255,255,1]},
-        {value: 500, color:[255,255,0,1]},
-        {value: 1000, color:[255,128,0,1]},
-        {value: 4000, color:[255,0,0,1]}
-      ]
+    label: 'Ice velocity',
+    url: './data/velocity-cog-epsg3031.tif',
+    units: 'm/yr',
+    mode: 'interpolate',
+    nodata: -9999,
+    zeroTransparent: true,
+    legendNote: 'Velocity ramp from 0 to 4000 m/yr.',
+    stops: [
+      {value: 0,    color:[0,0,255,1],     hex:'#0000ff', label: '0'},
+      {value: 50,   color:[0,255,255,1],   hex:'#00ffff', label: '50'},
+      {value: 500,  color:[255,255,0,1],   hex:'#ffff00', label: '500'},
+      {value: 1000, color:[255,128,0,1],   hex:'#ff8000', label: '1000'},
+      {value: 4000, color:[255,0,0,1],     hex:'#ff0000', label: '4000'}
+    ]
   },
 
   smb: {
