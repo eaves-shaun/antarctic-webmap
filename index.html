@@ -223,7 +223,7 @@ const rasterConfigs = {
 
   velocity: {
       label: 'Ice velocity',
-      url: './data/velocity-cog.tif',
+      url: './data/velocity-cog-epsg3031.tif',
       units: 'm/yr',
       mode: 'interpolate',
       nodata: -9999,
@@ -288,21 +288,6 @@ function colourExpressionFromConfig(config) {
 }
 
 function styleFromConfig(config) {
-
-  if (config.label === 'Ice velocity') {
-    return {
-      color: [
-        'interpolate',
-        ['linear'],
-        ['band', 1],
-
-        0, [255,255,0,1],
-        1, [255,0,0,1]
-      ]
-    };
-  }
-
-  // existing code below
   const conditions = [
     'case',
 
@@ -318,6 +303,9 @@ function styleFromConfig(config) {
   }
 
   conditions.push(colourExpressionFromConfig(config));
+
+  return {color: conditions};
+}
 
   return {color: conditions};
 }
