@@ -292,18 +292,12 @@ function styleFromConfig(config) {
   if (config.label === 'Ice velocity') {
     return {
       color: [
-        'case',
+        'interpolate',
+        ['linear'],
+        ['band', 1],
 
-        ['<', ['band', 1], 0],
-        [255, 0, 0, 1],      // red
-
-        ['==', ['band', 1], 0],
-        [255, 255, 0, 1],    // yellow
-
-        ['>', ['band', 1], 0],
-        [0, 255, 0, 1],      // green
-
-        [0, 0, 255, 1]
+        0, [255,255,0,1],
+        1, [255,0,0,1]
       ]
     };
   }
@@ -329,20 +323,22 @@ function styleFromConfig(config) {
 }
 
 function createRasterLayer(config, opacity) {
+  const src = new GeoTIFF({
+    sources: [{
+      url: config.url,
+      nodata: config.nodata
+    }],
+    normalize: false
+  });
+
+  src.getView().then(v => console.log('velocity view', v));
+
   return new WebGLTileLayer({
     opacity: opacity,
-
-    source: new GeoTIFF({
-      sources: [{
-        url: config.url,
-        nodata: config.nodata
-      }],
-      normalize: false
-    }),
-
+    source: src,
     style: styleFromConfig(config)
-
   });
+ 
 }
 
 
