@@ -226,7 +226,7 @@ const rasterConfigs = {
     url: './data/velocity.tif',
     units: 'm/yr',
     mode: 'interpolate',
-    //nodata: null,
+    nodata: null,
     zeroTransparent: false,
     legendNote: 'Continuous jet ramp using logarithmically spaced velocity stops.',
     stops: [
@@ -313,8 +313,7 @@ function createRasterLayer(config, opacity) {
       sources: [{
         url: config.url,
         nodata: config.nodata
-      }],
-      normalize: false
+      }]
     }),
     style: styleFromConfig(config)
   });
