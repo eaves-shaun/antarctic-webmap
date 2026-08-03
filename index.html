@@ -390,11 +390,19 @@ function updateLegend(config) {
     <div class="legend-title">${config.label}</div>
     <div class="legend-gradient" style="background: linear-gradient(to right, ${gradientStops});"></div>
     <div class="legend-labels">
-      <span>${minValue} ${config.units}</span>
+      <span>${minValue}</span>
       <span>${maxValue} ${config.units}</span>
     </div>
+    ${config.legendScale === 'log' ? `
+      <div class="legend-labels">
+        <span>1</span>
+        <span>10</span>
+        <span>100</span>
+        <span>1000</span>
+      </div>
+    ` : ''}
     <div class="legend-note">${config.legendNote}</div>
-  `;
+`;
 }
 
 
