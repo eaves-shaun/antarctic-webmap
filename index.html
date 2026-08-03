@@ -228,21 +228,22 @@ const rasterConfigs = {
     mode: 'interpolate',
     nodata: -9999,
     zeroTransparent: true,
-    legendNote: 'Velocity ramp from 0 to 4000 m/yr.',
+    legendScale: 'log',
+    legendNote: 'Log-scaled colourbar emphasises slow-flowing ice and ice-stream onset zones.',
     stops: [
-      {value: 0,    color:[0,0,128,1],     hex:'#000080'},
-      {value: 1,    color:[0,0,255,1],     hex:'#0000ff'},
-      {value: 5,    color:[0,128,255,1],   hex:'#0080ff'},
-      {value: 10,   color:[0,255,255,1],   hex:'#00ffff'},
-      {value: 25,   color:[0,255,128,1],   hex:'#00ff80'},
-      {value: 50,   color:[255,255,0,1],   hex:'#ffff00'},
-      {value: 100,  color:[255,200,0,1],   hex:'#ffc800'},
-      {value: 250,  color:[255,128,0,1],   hex:'#ff8000'},
-      {value: 500,  color:[255,0,0,1],     hex:'#ff0000'},
-      {value: 1000, color:[180,0,0,1],     hex:'#b40000'},
-      {value: 4000, color:[100,0,0,1],     hex:'#640000'}
+      {value: 0,    color:[0,0,128,1],     hex:'#000080', label:'0'},
+      {value: 1,    color:[0,0,255,1],     hex:'#0000ff', label:'1'},
+      {value: 5,    color:[0,128,255,1],   hex:'#0080ff', label:'5'},
+      {value: 10,   color:[0,255,255,1],   hex:'#00ffff', label:'10'},
+      {value: 25,   color:[0,255,128,1],   hex:'#00ff80', label:'25'},
+      {value: 50,   color:[255,255,0,1],   hex:'#ffff00', label:'50'},
+      {value: 100,  color:[255,200,0,1],   hex:'#ffc800', label:'100'},
+      {value: 250,  color:[255,128,0,1],   hex:'#ff8000', label:'250'},
+      {value: 500,  color:[255,0,0,1],     hex:'#ff0000', label:'500'},
+      {value: 1000, color:[180,0,0,1],     hex:'#b40000', label:'1000'},
+      {value: 4000, color:[90,0,0,1],      hex:'#5a0000', label:'4000'}
     ]
-  },
+},
 
   smb: {
     label: 'Surface mass balance',
@@ -345,20 +346,43 @@ function updateLegend(config) {
 
   let gradientStops;
 
-  if (config.mode === 'step') {
-    const n = config.stops.length;
-    gradientStops = config.stops.map((stop, i) => {
-      const start = (i / n) * 100;
-      const end = ((i + 1) / n) * 100;
-      return `${stop.hex} ${start.toFixed(2)}%, ${stop.hex} ${end.toFixed(2)}%`;
+  if (config.legendScale === 'log') {
+
+    // For a log legend, zero cannot be placed on a logarithmic axis.
+    // Use the first positive value as the lower bound for spacing.
+    const positiveStops = config.stops.filter(stop => stop.value > 0);
+
+    const minLogValue = positiveStops[0].value;
+    const maxLogValue = positiveStops[positiveStops.length - 1].value;
+
+    const logMin = Math.log10(minLogValue);
+    const logMax = Math.log10(maxLogValue);
+    const logRange = logMax - logMin;
+
+    gradientStops = config.stops.map(stop => {
+      const colour = stop.hex || `rgba(${stop.color[0]}, ${stop.color[1]}, ${stop.color[2]}, ${stop.color[3]})`;
+
+      let pct;
+
+      if (stop.value <= 0) {
+        pct = 0;
+      } else {
+        pct = ((Math.log10(stop.value) - logMin) / logRange) * 100;
+      }
+
+      return `${colour} ${pct.toFixed(2)}%`;
     }).join(', ');
+
   } else {
+
     const first = config.stops[0].value;
     const last = config.stops[config.stops.length - 1].value;
     const range = last - first;
+
     gradientStops = config.stops.map(stop => {
+      const colour = stop.hex || `rgba(${stop.color[0]}, ${stop.color[1]}, ${stop.color[2]}, ${stop.color[3]})`;
       const pct = ((stop.value - first) / range) * 100;
-      return `${stop.hex} ${pct.toFixed(2)}%`;
+      return `${colour} ${pct.toFixed(2)}%`;
     }).join(', ');
   }
 
@@ -372,6 +396,7 @@ function updateLegend(config) {
     <div class="legend-note">${config.legendNote}</div>
   `;
 }
+
 
 // ---------------------------------------------------------------------
 // ArcGIS Antarctica and Southern Ocean WMTS basemap
