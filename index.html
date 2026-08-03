@@ -227,11 +227,12 @@ const rasterConfigs = {
       units: 'm/yr',
       mode: 'interpolate',
       nodata: -9999,
-      zeroTransparent: false,
+      zeroTransparent: true,
       stops: [
         {value: 0, color:[0,0,255,1]},
         {value: 50, color:[0,255,255,1]},
         {value: 500, color:[255,255,0,1]},
+        {value: 1000, color:[255,128,0,1]},
         {value: 4000, color:[255,0,0,1]}
       ]
   },
