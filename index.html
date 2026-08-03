@@ -288,6 +288,14 @@ function colourExpressionFromConfig(config) {
 }
 
 function styleFromConfig(config) {
+
+  if (config.label === 'Ice velocity') {
+    return {
+      color: [255, 0, 0, 1]
+    };
+  }
+
+  // existing code below
   const conditions = [
     'case',
 
