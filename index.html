@@ -292,12 +292,33 @@ function colourExpressionFromConfig(config) {
 }
 
 function styleFromConfig(config) {
+
+  if (config.label === 'Ice velocity') {
+
+    return {
+      color: [
+        'case',
+
+        ['==', ['band', 1], 0],
+        [255, 0, 255, 1],   // MAGENTA
+
+        ['<', ['band', 1], 0],
+        [255, 0, 0, 1],     // RED
+
+        ['>', ['band', 1], 5000],
+        [0, 255, 0, 1],     // GREEN
+
+        [0, 0, 255, 1]      // BLUE
+      ]
+    };
+
+  }
+
   const conditions = [
     'case',
 
     ['==', ['band', 1], config.nodata],
     [0, 0, 0, 0],
-
   ];
 
   if (config.zeroTransparent) {
