@@ -230,14 +230,9 @@ const rasterConfigs = {
     zeroTransparent: true,
     legendNote: 'Continuous jet ramp using logarithmically spaced velocity stops.',
     stops: [
-      {value: 0.1, color: [0, 0, 128, 1], hex: '#000080'},
-      {value:   1, color: [0, 0, 255, 1], hex: '#0000ff'},
-      {value:   3, color: [0, 128, 255, 1], hex: '#0080ff'},
-      {value:  10, color: [0, 255, 255, 1], hex: '#00ffff'},
-      {value:  30, color: [255, 255, 0, 1], hex: '#ffff00'},
-      {value: 100, color: [255, 0, 0, 1], hex: '#ff0000'},
-      {value: 300, color: [128, 0, 0, 1], hex: '#800000'}
-    ]
+      {value: 0.000001, color:[255,255,255,1]},
+      {value: 4000,     color:[255,0,0,1]}
+]
   },
 
   smb: {
