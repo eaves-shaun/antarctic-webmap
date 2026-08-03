@@ -222,17 +222,18 @@ const rasterConfigs = {
   },
 
   velocity: {
-    label: 'Ice velocity',
-    url: './data/bed-elevation-cog.tif',
-    units: 'm/yr',
-    mode: 'interpolate',
-    nodata: null,
-    zeroTransparent: false,
-    legendNote: 'Continuous jet ramp using logarithmically spaced velocity stops.',
-    stops: [
-      {value: 0.000001, color:[255,255,255,1]},
-      {value: 4000,     color:[255,0,0,1]}
-    ]
+      label: 'Ice velocity',
+      url: './data/velocity.tif',
+      units: 'm/yr',
+      mode: 'interpolate',
+      nodata: -3.4028235e+38,
+      zeroTransparent: false,
+      stops: [
+        {value: 0, color:[0,0,255,1]},
+        {value: 50, color:[0,255,255,1]},
+        {value: 500, color:[255,255,0,1]},
+        {value: 4000, color:[255,0,0,1]}
+      ]
   },
 
   smb: {
